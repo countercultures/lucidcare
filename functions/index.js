@@ -10,9 +10,9 @@ exports.scanProxy = functions.https.onRequest((req, res) => {
   const { base64, mediaType } = req.body;
   if (!base64 || !mediaType) { res.status(400).json({ error: "Missing base64 or mediaType" }); return; }
 
-  const ANTHROPIC_API_KEY = (process.env.ANTHROPIC_KEY || "").trim();
+  const ANTHROPIC_API_KEY = (process.env.ANTHROPIC_KEY || "").trim().replace(/\n/g, "").replace(/\r/g, "");
   console.log("Key length:", ANTHROPIC_API_KEY.length);
-  console.log("Key prefix:", ANTHROPIC_API_KEY.substring(0, 20));
+  console.log("Key starts:", ANTHROPIC_API_KEY.substring(0, 25));
 
   const payload = JSON.stringify({
     model: "claude-sonnet-4-6",
@@ -38,7 +38,7 @@ exports.scanProxy = functions.https.onRequest((req, res) => {
     apiRes.on("data", chunk => { data += chunk; });
     apiRes.on("end", () => {
       console.log("Anthropic status:", apiRes.statusCode);
-      console.log("Anthropic response:", data.substring(0, 200));
+      console.log("Anthropic response:", data.substring(0, 500));
       try { res.status(apiRes.statusCode).json(JSON.parse(data)); }
       catch { res.status(500).json({ error: "Failed to parse response", raw: data.substring(0, 200) }); }
     });
