@@ -1174,6 +1174,7 @@
             }]
           })
         });
+        if (!response.ok) { const errData = await response.json(); throw new Error(errData?.error?.message || "API error " + response.status); }
         const data = await response.json();
         const text = data.content?.[0]?.text || "{}";
         const clean = text.replace(/```json|```/g, "").trim();
@@ -1200,7 +1201,7 @@
           set("f-phone", parsed.phone);
         }, 100);
       } catch(err) {
-        document.getElementById("scan-status").textContent = "Could not read document. Please try again or add manually.";
+        const errMsg = err?.message || String(err); document.getElementById("scan-status").textContent = "Error: " + errMsg;
       }
     };
     reader.readAsDataURL(file);
