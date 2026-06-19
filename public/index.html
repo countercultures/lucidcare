@@ -1,6 +1,1049 @@
-LucidCare
-Your personal health record
-Sign in
-EMAIL
-PASSWORD
-Sign in
+bash
+
+cat /home/claude/lucidcare/public/index.html
+Output
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LucidCare" />
+  <title>LucidCare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #7eb8f7;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --text: #e8eaf2;
+      --text2: #8b91b0;
+      --text3: #555e82;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+      --radius: 14px;
+      --tab-h: 64px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── AUTH ── */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      background: radial-gradient(ellipse at 50% 0%, #1a2340 0%, var(--bg) 70%);
+    }
+
+    .auth-logo {
+      font-family: var(--serif);
+      font-size: 42px;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+
+    .auth-sub {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .auth-card h2 {
+      font-family: var(--serif);
+      font-size: 22px;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field input:focus { border-color: var(--accent); }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #0a0e1a;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--sans);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:active { opacity: 0.8; }
+
+    .auth-error {
+      color: var(--red);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* ── APP SHELL ── */
+    #app { display: none; }
+
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: rgba(15,17,23,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      padding-top: env(safe-area-inset-top);
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+
+    .top-bar-right { display: flex; gap: 12px; align-items: center; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--tab-h);
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(15,17,23,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text3);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      transition: color 0.15s;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    .tab-item.active { color: var(--accent); }
+    .tab-icon { font-size: 22px; }
+
+    .content-area {
+      padding-top: 72px;
+      padding-bottom: calc(var(--tab-h) + 12px);
+      padding-left: 16px;
+      padding-right: 16px;
+      min-height: 100vh;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .card-title { font-size: 15px; font-weight: 600; }
+    .card-date { font-size: 12px; color: var(--text2); }
+    .card-body { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-blue { background: rgba(126,184,247,0.15); color: var(--accent); }
+    .badge-purple { background: rgba(167,139,250,0.15); color: var(--accent2); }
+    .badge-green { background: rgba(74,222,128,0.15); color: var(--green); }
+    .badge-amber { background: rgba(251,191,36,0.15); color: var(--amber); }
+    .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      margin-top: 8px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+    }
+
+    .btn-add {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+
+    /* ── TIMELINE ── */
+    .timeline-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 0;
+    }
+
+    .timeline-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot.purple { background: var(--accent2); }
+    .timeline-dot.green { background: var(--green); }
+    .timeline-dot.amber { background: var(--amber); }
+
+    .timeline-line {
+      width: 1px;
+      flex: 1;
+      background: var(--border);
+      min-height: 24px;
+    }
+
+    .timeline-content {
+      flex: 1;
+      padding-bottom: 20px;
+    }
+
+    /* ── SEARCH ── */
+    .search-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-bar input {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: var(--sans);
+      outline: none;
+      flex: 1;
+    }
+
+    .search-bar input::placeholder { color: var(--text3); }
+
+    /* ── LAB CHART ── */
+    .lab-chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+    }
+
+    .lab-chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+
+    .sparkline-wrap { display: flex; gap: 8px; align-items: flex-end; height: 60px; }
+
+    .spark-bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      background: var(--accent);
+      opacity: 0.7;
+      position: relative;
+      min-width: 20px;
+      transition: opacity 0.2s;
+    }
+
+    .spark-bar:hover { opacity: 1; }
+
+    .spark-label { font-size: 9px; color: var(--text3); text-align: center; margin-top: 4px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius) var(--radius) 0 0;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px 20px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .modal h3 {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 20px;
+    }
+
+    .modal .field input,
+    .modal .field select,
+    .modal .field textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: var(--sans);
+      outline: none;
+    }
+
+    .modal .field textarea { resize: vertical; min-height: 80px; }
+    .modal .field select { appearance: none; }
+
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-cancel {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 15px;
+      font-family: var(--sans);
+      cursor: pointer;
+    }
+
+    .btn-save {
+      flex: 2;
+      background: var(--accent);
+      border: none;
+      color: #0a0e1a;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--sans);
+      cursor: pointer;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text3);
+    }
+
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; color: var(--text2); margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; }
+
+    /* ── DOCTOR CARD ── */
+    .doctor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .doctor-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .doctor-info { flex: 1; }
+    .doctor-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .doctor-specialty { font-size: 13px; color: var(--accent); margin-bottom: 4px; }
+    .doctor-detail { font-size: 12px; color: var(--text2); }
+
+    /* ── MED CARD ── */
+    .med-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .med-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+    }
+
+    .delete-btn:hover { color: var(--red); }
+
+    /* ── LOADING ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--text3);
+      font-size: 14px;
+    }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-logo">LucidCare</div>
+  <div class="auth-sub">Your personal health record</div>
+  <div class="auth-card">
+    <h2>Sign in</h2>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-primary" onclick="signIn()">Sign in</button>
+    <div class="auth-error hidden" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-title">LucidCare</div>
+    <div class="top-bar-right">
+      <button class="icon-btn" onclick="openAddModal()" title="Add record">＋</button>
+      <button class="icon-btn" onclick="signOut()" title="Sign out">⎋</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content-area">
+
+    <!-- TIMELINE TAB -->
+    <div class="tab-panel active" id="panel-timeline">
+      <div class="section-header">
+        <div class="section-title">Journey</div>
+        <button class="btn-add" onclick="openModal('timeline')">+ Add</button>
+      </div>
+      <div class="search-bar">
+        <span style="color:var(--text3)">🔍</span>
+        <input type="text" placeholder="Search timeline…" oninput="filterTimeline(this.value)" />
+      </div>
+      <div id="timeline-list"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- MEDICATIONS TAB -->
+    <div class="tab-panel" id="panel-meds">
+      <div class="section-header">
+        <div class="section-title">Medications</div>
+        <button class="btn-add" onclick="openModal('med')">+ Add</button>
+      </div>
+      <div id="active-meds-section">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px;">Current</div>
+        <div id="active-meds-list"><div class="loading">Loading…</div></div>
+      </div>
+      <div id="past-meds-section" style="margin-top:20px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px;">Past</div>
+        <div id="past-meds-list"></div>
+      </div>
+    </div>
+
+    <!-- TREATMENTS TAB -->
+    <div class="tab-panel" id="panel-treatments">
+      <div class="section-header">
+        <div class="section-title">Treatments</div>
+        <button class="btn-add" onclick="openModal('treatment')">+ Add</button>
+      </div>
+      <div id="treatments-list"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- DOCTORS TAB -->
+    <div class="tab-panel" id="panel-doctors">
+      <div class="section-header">
+        <div class="section-title">Care Team</div>
+        <button class="btn-add" onclick="openModal('doctor')">+ Add</button>
+      </div>
+      <div id="doctors-list"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- LABS TAB -->
+    <div class="tab-panel" id="panel-labs">
+      <div class="section-header">
+        <div class="section-title">Lab Results</div>
+        <button class="btn-add" onclick="openModal('lab')">+ Add</button>
+      </div>
+      <div id="labs-list"><div class="loading">Loading…</div></div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('timeline', this)">
+      <span class="tab-icon">📅</span>Timeline
+    </button>
+    <button class="tab-item" onclick="switchTab('meds', this)">
+      <span class="tab-icon">💊</span>Meds
+    </button>
+    <button class="tab-item" onclick="switchTab('treatments', this)">
+      <span class="tab-icon">🩺</span>Treatments
+    </button>
+    <button class="tab-item" onclick="switchTab('doctors', this)">
+      <span class="tab-icon">👩‍⚕️</span>Doctors
+    </button>
+    <button class="tab-item" onclick="switchTab('labs', this)">
+      <span class="tab-icon">🧪</span>Labs
+    </button>
+  </div>
+
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <h3 id="modal-title">Add Record</h3>
+    <div id="modal-body"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn-save" onclick="saveRecord()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ── FIREBASE CONFIG ── Replace with your own config from Firebase console
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8lAgKu00K-qWqOBny0fy7vcRFBZDdRmg",
+    authDomain: "lucidcare2026.firebaseapp.com",
+    projectId: "lucidcare2026",
+    storageBucket: "lucidcare2026.firebasestorage.app",
+    messagingSenderId: "67455847752",
+    appId: "1:67455847752:web:e9a8f6d52354e76496377d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ── AUTH ──
+  window.signIn = async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errEl = document.getElementById('auth-error');
+    errEl.classList.add('hidden');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch(e) {
+      errEl.textContent = 'Incorrect email or password.';
+      errEl.classList.remove('hidden');
+    }
+  };
+
+  window.signOut = async () => {
+    await fbSignOut(auth);
+  };
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadAll();
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+    }
+  });
+
+  // Allow pressing Enter to sign in
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.signIn();
+  });
+
+  // ── DATA ──
+  let allTimeline = [];
+
+  async function loadAll() {
+    loadTimeline();
+    loadMeds();
+    loadTreatments();
+    loadDoctors();
+    loadLabs();
+  }
+
+  async function getCol(name, orderField = 'date') {
+    try {
+      const q = query(collection(db, name), orderBy(orderField, 'desc'));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) {
+      // If no index yet, just get unordered
+      const snap = await getDocs(collection(db, name));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+  }
+
+  // ── TIMELINE ──
+  async function loadTimeline() {
+    allTimeline = await getCol('timeline');
+    renderTimeline(allTimeline);
+  }
+
+  function renderTimeline(items) {
+    const el = document.getElementById('timeline-list');
+    if (!items.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No records yet</div><div class="empty-sub">Tap + Add to record your first event</div></div>`;
+      return;
+    }
+    const colorMap = { diagnosis: 'purple', surgery: 'amber', chemo: 'blue', radiation: 'red', appointment: '', alternative: 'green', other: '' };
+    el.innerHTML = items.map((item, i) => `
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-dot ${colorMap[item.type] || ''}"></div>
+          ${i < items.length - 1 ? '<div class="timeline-line"></div>' : ''}
+        </div>
+        <div class="timeline-content">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">${item.title}</div>
+                <div class="card-date">${formatDate(item.date)}</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span class="badge badge-${colorMap[item.type] || 'blue'}">${item.type}</span>
+                <button class="delete-btn" onclick="deleteRecord('timeline','${item.id}', loadTimeline)">✕</button>
+              </div>
+            </div>
+            ${item.notes ? `<div class="card-body">${item.notes}</div>` : ''}
+            ${item.doctor ? `<div class="card-body" style="margin-top:4px">👩‍⚕️ ${item.doctor}</div>` : ''}
+            ${item.location ? `<div class="card-body">📍 ${item.location}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.filterTimeline = (q) => {
+    const filtered = allTimeline.filter(i =>
+      i.title?.toLowerCase().includes(q.toLowerCase()) ||
+      i.notes?.toLowerCase().includes(q.toLowerCase()) ||
+      i.doctor?.toLowerCase().includes(q.toLowerCase())
+    );
+    renderTimeline(filtered);
+  };
+
+  // ── MEDS ──
+  async function loadMeds() {
+    const meds = await getCol('medications', 'startDate');
+    const active = meds.filter(m => m.status === 'active' || !m.status);
+    const past = meds.filter(m => m.status === 'past');
+    renderMeds('active-meds-list', active);
+    renderMeds('past-meds-list', past);
+  }
+  window.loadMeds = loadMeds;
+
+  function renderMeds(elId, meds) {
+    const el = document.getElementById(elId);
+    if (!meds.length) {
+      el.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:8px 0;">None</div>`;
+      return;
+    }
+    el.innerHTML = meds.map(m => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="med-status">
+              <div class="med-dot" style="background:${m.status === 'past' ? 'var(--text3)' : 'var(--green)'}"></div>
+              <div class="card-title">${m.name}</div>
+            </div>
+            <div class="card-date">${m.dosage || ''} ${m.frequency || ''}</div>
+          </div>
+          <button class="delete-btn" onclick="deleteRecord('medications','${m.id}', loadMeds)">✕</button>
+        </div>
+        ${m.startDate ? `<div class="card-body">Started: ${formatDate(m.startDate)}${m.endDate ? ' → ' + formatDate(m.endDate) : ''}</div>` : ''}
+        ${m.notes ? `<div class="card-body">${m.notes}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  // ── TREATMENTS ──
+  async function loadTreatments() {
+    const items = await getCol('treatments');
+    const el = document.getElementById('treatments-list');
+    if (!items.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🩺</div><div class="empty-title">No treatments yet</div><div class="empty-sub">Add chemo rounds, surgeries, radiation, or alternative medicine</div></div>`;
+      return;
+    }
+    const colorMap = { chemotherapy: 'blue', surgery: 'amber', radiation: 'red', immunotherapy: 'purple', alternative: 'green', other: '' };
+    el.innerHTML = items.map(t => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${t.name}</div>
+            <div class="card-date">${formatDate(t.date)}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="badge badge-${colorMap[t.type] || 'blue'}">${t.type}</span>
+            <button class="delete-btn" onclick="deleteRecord('treatments','${t.id}', loadTreatments)">✕</button>
+          </div>
+        </div>
+        ${t.provider ? `<div class="card-body">👩‍⚕️ ${t.provider}</div>` : ''}
+        ${t.notes ? `<div class="card-body">${t.notes}</div>` : ''}
+      </div>
+    `).join('');
+  }
+  window.loadTreatments = loadTreatments;
+
+  // ── DOCTORS ──
+  async function loadDoctors() {
+    const items = await getCol('doctors', 'name');
+    const el = document.getElementById('doctors-list');
+    if (!items.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">👩‍⚕️</div><div class="empty-title">No doctors yet</div><div class="empty-sub">Add your care team</div></div>`;
+      return;
+    }
+    el.innerHTML = items.map(d => `
+      <div class="doctor-card">
+        <div class="doctor-avatar">👨‍⚕️</div>
+        <div class="doctor-info">
+          <div class="doctor-name">${d.name}</div>
+          <div class="doctor-specialty">${d.specialty || ''}</div>
+          ${d.hospital ? `<div class="doctor-detail">🏥 ${d.hospital}</div>` : ''}
+          ${d.phone ? `<div class="doctor-detail">📞 <a href="tel:${d.phone}" style="color:var(--accent);text-decoration:none">${d.phone}</a></div>` : ''}
+          ${d.email ? `<div class="doctor-detail">✉️ <a href="mailto:${d.email}" style="color:var(--accent);text-decoration:none">${d.email}</a></div>` : ''}
+          ${d.notes ? `<div class="doctor-detail" style="margin-top:4px">${d.notes}</div>` : ''}
+        </div>
+        <button class="delete-btn" onclick="deleteRecord('doctors','${d.id}', loadDoctors)">✕</button>
+      </div>
+    `).join('');
+  }
+  window.loadDoctors = loadDoctors;
+
+  // ── LABS ──
+  async function loadLabs() {
+    const items = await getCol('labs');
+    const el = document.getElementById('labs-list');
+    if (!items.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🧪</div><div class="empty-title">No lab results yet</div><div class="empty-sub">Add blood work, scans, and other test results</div></div>`;
+      return;
+    }
+
+    // Group by test name for trend display
+    const groups = {};
+    items.forEach(item => {
+      const key = item.testName || 'Other';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+
+    let html = '';
+    for (const [testName, results] of Object.entries(groups)) {
+      const sorted = results.sort((a,b) => a.date > b.date ? 1 : -1);
+      const latest = sorted[sorted.length - 1];
+      const maxVal = Math.max(...sorted.map(r => parseFloat(r.value) || 0));
+
+      html += `
+        <div class="lab-chart-wrap">
+          <div class="lab-chart-title">${testName}</div>
+          ${sorted.length > 1 ? `
+            <div class="sparkline-wrap">
+              ${sorted.map(r => {
+                const h = maxVal > 0 ? Math.max(8, Math.round((parseFloat(r.value) / maxVal) * 55)) : 20;
+                return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                  <div class="spark-bar" style="height:${h}px" title="${r.value} ${r.unit || ''} on ${formatDate(r.date)}"></div>
+                  <div class="spark-label">${r.date ? r.date.slice(5) : ''}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          ` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+            <div>
+              <div style="font-size:22px;font-weight:600">${latest.value} <span style="font-size:13px;color:var(--text2);font-weight:400">${latest.unit || ''}</span></div>
+              <div style="font-size:12px;color:var(--text3)">${formatDate(latest.date)} · ${results.length} result${results.length > 1 ? 's' : ''}</div>
+            </div>
+            ${latest.flag ? `<span class="badge badge-${latest.flag === 'high' ? 'red' : latest.flag === 'low' ? 'amber' : 'green'}">${latest.flag}</span>` : ''}
+            <button class="delete-btn" onclick="deleteRecord('labs','${latest.id}', loadLabs)">✕</button>
+          </div>
+          ${latest.notes ? `<div class="card-body" style="margin-top:8px">${latest.notes}</div>` : ''}
+        </div>
+      `;
+    }
+    el.innerHTML = html;
+  }
+  window.loadLabs = loadLabs;
+
+  // ── MODAL ──
+  let currentModalType = null;
+
+  const modalForms = {
+    timeline: `
+      <div class="field"><label>Title *</label><input id="f-title" placeholder="e.g. First chemotherapy session" /></div>
+      <div class="field"><label>Date *</label><input id="f-date" type="date" /></div>
+      <div class="field"><label>Type</label><select id="f-type"><option value="appointment">Appointment</option><option value="diagnosis">Diagnosis</option><option value="chemo">Chemotherapy</option><option value="surgery">Surgery</option><option value="radiation">Radiation</option><option value="alternative">Alternative Medicine</option><option value="other">Other</option></select></div>
+      <div class="field"><label>Doctor / Provider</label><input id="f-doctor" placeholder="Dr. Name" /></div>
+      <div class="field"><label>Location</label><input id="f-location" placeholder="MD Anderson, Houston" /></div>
+      <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="What happened, how you felt…"></textarea></div>
+    `,
+    med: `
+      <div class="field"><label>Medication name *</label><input id="f-name" placeholder="e.g. Anastrozole" /></div>
+      <div class="field"><label>Dosage</label><input id="f-dosage" placeholder="e.g. 1mg" /></div>
+      <div class="field"><label>Frequency</label><input id="f-frequency" placeholder="e.g. Once daily" /></div>
+      <div class="field"><label>Start date</label><input id="f-startDate" type="date" /></div>
+      <div class="field"><label>End date (if stopped)</label><input id="f-endDate" type="date" /></div>
+      <div class="field"><label>Status</label><select id="f-status"><option value="active">Currently taking</option><option value="past">No longer taking</option></select></div>
+      <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Reason, side effects…"></textarea></div>
+    `,
+    treatment: `
+      <div class="field"><label>Treatment name *</label><input id="f-name" placeholder="e.g. Cycle 3 Carboplatin" /></div>
+      <div class="field"><label>Date *</label><input id="f-date" type="date" /></div>
+      <div class="field"><label>Type</label><select id="f-type"><option value="chemotherapy">Chemotherapy</option><option value="surgery">Surgery</option><option value="radiation">Radiation</option><option value="immunotherapy">Immunotherapy</option><option value="alternative">Alternative Medicine</option><option value="other">Other</option></select></div>
+      <div class="field"><label>Provider / Clinic</label><input id="f-provider" placeholder="MD Anderson" /></div>
+      <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Details, reactions, outcome…"></textarea></div>
+    `,
+    doctor: `
+      <div class="field"><label>Name *</label><input id="f-name" placeholder="Dr. First Last" /></div>
+      <div class="field"><label>Specialty</label><input id="f-specialty" placeholder="e.g. Oncologist" /></div>
+      <div class="field"><label>Hospital / Clinic</label><input id="f-hospital" placeholder="MD Anderson Cancer Center" /></div>
+      <div class="field"><label>Phone</label><input id="f-phone" type="tel" placeholder="713-xxx-xxxx" /></div>
+      <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="doctor@mdanderson.org" /></div>
+      <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Any notes about this provider…"></textarea></div>
+    `,
+    lab: `
+      <div class="field"><label>Test name *</label><input id="f-testName" placeholder="e.g. CA-125, WBC, Hemoglobin" /></div>
+      <div class="field"><label>Value *</label><input id="f-value" placeholder="e.g. 12.5" /></div>
+      <div class="field"><label>Unit</label><input id="f-unit" placeholder="e.g. U/mL, g/dL" /></div>
+      <div class="field"><label>Date *</label><input id="f-date" type="date" /></div>
+      <div class="field"><label>Flag</label><select id="f-flag"><option value="">Normal</option><option value="high">High</option><option value="low">Low</option><option value="critical">Critical</option></select></div>
+      <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Reference range, doctor comments…"></textarea></div>
+    `
+  };
+
+  const modalTitles = { timeline: 'Add Event', med: 'Add Medication', treatment: 'Add Treatment', doctor: 'Add Doctor', lab: 'Add Lab Result' };
+
+  window.openModal = (type) => {
+    currentModalType = type;
+    document.getElementById('modal-title').textContent = modalTitles[type];
+    document.getElementById('modal-body').innerHTML = modalForms[type];
+    // Set today as default date
+    const dateInputs = document.querySelectorAll('#modal-body input[type="date"]');
+    dateInputs.forEach(inp => { if (inp.id === 'f-date' || inp.id === 'f-startDate') inp.value = new Date().toISOString().slice(0,10); });
+    document.getElementById('modal-overlay').classList.remove('hidden');
+  };
+
+  window.openAddModal = () => openModal('timeline');
+
+  window.closeModal = (e) => {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  };
+
+  window.closeModalDirect = () => {
+    document.getElementById('modal-overlay').classList.add('hidden');
+  };
+
+  window.saveRecord = async () => {
+    const type = currentModalType;
+    const get = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+    let data = {};
+    let collectionName = '';
+
+    if (type === 'timeline') {
+      if (!get('f-title') || !get('f-date')) { alert('Title and date are required.'); return; }
+      data = { title: get('f-title'), date: get('f-date'), type: get('f-type'), doctor: get('f-doctor'), location: get('f-location'), notes: get('f-notes') };
+      collectionName = 'timeline';
+    } else if (type === 'med') {
+      if (!get('f-name')) { alert('Medication name is required.'); return; }
+      data = { name: get('f-name'), dosage: get('f-dosage'), frequency: get('f-frequency'), startDate: get('f-startDate'), endDate: get('f-endDate'), status: get('f-status'), notes: get('f-notes') };
+      collectionName = 'medications';
+    } else if (type === 'treatment') {
+      if (!get('f-name') || !get('f-date')) { alert('Name and date are required.'); return; }
+      data = { name: get('f-name'), date: get('f-date'), type: get('f-type'), provider: get('f-provider'), notes: get('f-notes') };
+      collectionName = 'treatments';
+    } else if (type === 'doctor') {
+      if (!get('f-name')) { alert('Doctor name is required.'); return; }
+      data = { name: get('f-name'), specialty: get('f-specialty'), hospital: get('f-hospital'), phone: get('f-phone'), email: get('f-email'), notes: get('f-notes') };
+      collectionName = 'doctors';
+    } else if (type === 'lab') {
+      if (!get('f-testName') || !get('f-value') || !get('f-date')) { alert('Test name, value, and date are required.'); return; }
+      data = { testName: get('f-testName'), value: get('f-value'), unit: get('f-unit'), date: get('f-date'), flag: get('f-flag'), notes: get('f-notes') };
+      collectionName = 'labs';
+    }
+
+    data.createdAt = new Date().toISOString();
+
+    try {
+      await addDoc(collection(db, collectionName), data);
+      closeModalDirect();
+      // Reload the right list
+      if (type === 'timeline') loadTimeline();
+      else if (type === 'med') loadMeds();
+      else if (type === 'treatment') loadTreatments();
+      else if (type === 'doctor') loadDoctors();
+      else if (type === 'lab') loadLabs();
+    } catch(e) {
+      alert('Error saving: ' + e.message);
+    }
+  };
+
+  window.deleteRecord = async (colName, id, reloadFn) => {
+    if (!confirm('Delete this record?')) return;
+    await deleteDoc(doc(db, colName, id));
+    reloadFn();
+  };
+
+  // ── TABS ──
+  window.switchTab = (tab, el) => {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    el.classList.add('active');
+  };
+
+  // ── UTILS ──
+  function formatDate(d) {
+    if (!d) return '';
+    try {
+      return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch { return d; }
+  }
+</script>
+</body>
+</html>
+Done
