@@ -48,3 +48,4 @@ exports.scanProxy = functions.https.onRequest((req, res) => {
   apiReq.write(payload);
   apiReq.end();
 });
+// trigger redeploy
