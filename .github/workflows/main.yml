@@ -7,9 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          projectId: lucidcare2026
-          channelId: live
+          node-version: '18'
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+      - name: Install function dependencies
+        run: cd functions && npm install
+      - name: Write functions .env
+        run: echo "ANTHROPIC_KEY=${{ secrets.ANTHROPIC_KEY }}" > functions/.env
+      - name: Write service account key
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa.json
+      - name: Deploy hosting and functions
+        run: firebase deploy --project lucidcare2026
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
