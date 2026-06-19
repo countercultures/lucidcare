@@ -650,7 +650,7 @@
     <div id="scan-preview" style="display:none;margin-bottom:16px">
       <img id="scan-img" style="width:100%;border-radius:10px;border:1px solid var(--border)" />
     </div>
-    <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(this)" />
+    <input type="file" id="scan-file" accept="image/*,.pdf,.doc,.docx" capture="environment" style="display:none" onchange="handleScanFile(this)" />
     <button class="btn-primary" onclick="document.getElementById('scan-file').click()" id="scan-pick-btn">Choose Photo or Take Picture</button>
     <div id="scan-status" style="color:var(--text2);font-size:13px;margin-top:12px;text-align:center;display:none">🤖 Claude is reading the document…</div>
     <div class="modal-btns" style="margin-top:12px">
@@ -1161,7 +1161,7 @@
       try {
         const response = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "x-api-key": "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", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
           body: JSON.stringify({
             model: "claude-sonnet-4-6",
             max_tokens: 1000,
