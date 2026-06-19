@@ -539,6 +539,7 @@
   <div class="top-bar">
     <div class="top-bar-title">LucidCare</div>
     <div class="top-bar-right">
+      <button class="icon-btn" onclick="openScanModal()" title="Scan document">📷</button>
       <button class="icon-btn" onclick="openAddModal()" title="Add record">＋</button>
       <button class="icon-btn" onclick="signOut()" title="Sign out">⎋</button>
     </div>
@@ -603,6 +604,18 @@
       <div id="labs-list"><div class="loading">Loading…</div></div>
     </div>
 
+    <!-- SEARCH TAB -->
+    <div class="tab-panel" id="panel-search">
+      <div class="section-header">
+        <div class="section-title">Search</div>
+      </div>
+      <div class="search-bar" style="margin-bottom:20px">
+        <span style="color:var(--text3)">🔍</span>
+        <input type="text" id="global-search-input" placeholder="Search everything — meds, doctors, dates…" oninput="globalSearch(this.value)" />
+      </div>
+      <div id="search-results"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Start typing to search</div><div class="empty-sub">Searches across timeline, medications, treatments, doctors, and labs</div></div></div>
+    </div>
+
   </div>
 
   <!-- TAB BAR -->
@@ -622,10 +635,29 @@
     <button class="tab-item" onclick="switchTab('labs', this)">
       <span class="tab-icon">🧪</span>Labs
     </button>
+    <button class="tab-item" onclick="switchTab('search', this)">
+      <span class="tab-icon">🔍</span>Search
+    </button>
   </div>
 
 </div>
 
+<!-- SCAN MODAL -->
+<div class="modal-overlay hidden" id="scan-overlay" onclick="closeScanModal(event)">
+  <div class="modal" id="scan-box">
+    <h3>📷 Scan Document</h3>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Take a photo or choose an image of a prescription, lab result, doctor note, or any medical document. Claude will read it and fill in the details automatically.</p>
+    <div id="scan-preview" style="display:none;margin-bottom:16px">
+      <img id="scan-img" style="width:100%;border-radius:10px;border:1px solid var(--border)" />
+    </div>
+    <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(this)" />
+    <button class="btn-primary" onclick="document.getElementById('scan-file').click()" id="scan-pick-btn">Choose Photo or Take Picture</button>
+    <div id="scan-status" style="color:var(--text2);font-size:13px;margin-top:12px;text-align:center;display:none">🤖 Claude is reading the document…</div>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="btn-cancel" onclick="closeScanModalDirect()">Cancel</button>
+    </div>
+  </div>
+</div>
 <!-- ADD MODAL -->
 <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" id="modal-box">
@@ -701,6 +733,7 @@
     loadTreatments();
     loadDoctors();
     loadLabs();
+    loadAllForSearch();
   }
 
   async function getCol(name, orderField = 'date') {
@@ -720,6 +753,7 @@
     allTimeline = await getCol('timeline');
     renderTimeline(allTimeline);
   }
+  window.loadTimeline = loadTimeline;
 
   function renderTimeline(items) {
     const el = document.getElementById('timeline-list');
@@ -1018,7 +1052,7 @@
   };
 
   window.deleteRecord = async (colName, id, reloadFn) => {
-    if (!confirm('Delete this record?')) return;
+    if (!confirm('Are you sure you want to delete this record? This cannot be undone.')) return;
     await deleteDoc(doc(db, colName, id));
     reloadFn();
   };
@@ -1031,6 +1065,63 @@
     el.classList.add('active');
   };
 
+  // ── GLOBAL SEARCH ──
+  let allData = { timeline: [], medications: [], treatments: [], doctors: [], labs: [] };
+
+  async function loadAllForSearch() {
+    allData.timeline = await getCol("timeline");
+    allData.medications = await getCol("medications", "startDate");
+    allData.treatments = await getCol("treatments");
+    allData.doctors = await getCol("doctors", "name");
+    allData.labs = await getCol("labs");
+  }
+
+  window.globalSearch = (q) => {
+    const el = document.getElementById("search-results");
+    if (!q.trim()) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Start typing to search</div><div class="empty-sub">Searches across timeline, medications, treatments, doctors, and labs</div></div>`;
+      return;
+    }
+    const ql = q.toLowerCase();
+    const matches = [];
+    allData.timeline.forEach(i => {
+      if ([i.title,i.notes,i.doctor,i.location,i.date].some(f => f?.toLowerCase().includes(ql)))
+        matches.push({ label: "Timeline", title: i.title, sub: formatDate(i.date) + (i.doctor ? " · " + i.doctor : ""), badge: i.type });
+    });
+    allData.medications.forEach(i => {
+      if ([i.name,i.notes,i.dosage,i.frequency].some(f => f?.toLowerCase().includes(ql)))
+        matches.push({ label: "Medication", title: i.name, sub: (i.dosage||"") + " " + (i.frequency||"") + (i.startDate ? " · Started " + formatDate(i.startDate) : ""), badge: i.status });
+    });
+    allData.treatments.forEach(i => {
+      if ([i.name,i.notes,i.provider,i.date].some(f => f?.toLowerCase().includes(ql)))
+        matches.push({ label: "Treatment", title: i.name, sub: formatDate(i.date) + (i.provider ? " · " + i.provider : ""), badge: i.type });
+    });
+    allData.doctors.forEach(i => {
+      if ([i.name,i.specialty,i.hospital,i.phone,i.notes].some(f => f?.toLowerCase().includes(ql)))
+        matches.push({ label: "Doctor", title: i.name, sub: (i.specialty||"") + (i.hospital ? " · " + i.hospital : ""), badge: "" });
+    });
+    allData.labs.forEach(i => {
+      if ([i.testName,i.notes,i.value,i.date].some(f => f?.toLowerCase().includes(ql)))
+        matches.push({ label: "Lab", title: i.testName, sub: i.value + " " + (i.unit||"") + " · " + formatDate(i.date), badge: i.flag||"normal" });
+    });
+    if (!matches.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">😔</div><div class="empty-title">No results for "${q}"</div><div class="empty-sub">Try a different search term</div></div>`;
+      return;
+    }
+    el.innerHTML = matches.map(m => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px">${m.label}</div>
+            <div class="card-title">${m.title}</div>
+            <div class="card-date">${m.sub}</div>
+          </div>
+          ${m.badge ? `<span class="badge badge-blue">${m.badge}</span>` : ""}
+        </div>
+      </div>
+    `).join("");
+  };
+
   // ── UTILS ──
   function formatDate(d) {
     if (!d) return '';
@@ -1038,7 +1129,82 @@
       return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     } catch { return d; }
   }
+
+  // ── SCAN MODAL ──
+  window.openScanModal = () => {
+    document.getElementById("scan-overlay").classList.remove("hidden");
+    document.getElementById("scan-preview").style.display = "none";
+    document.getElementById("scan-status").style.display = "none";
+    document.getElementById("scan-file").value = "";
+    document.getElementById("scan-pick-btn").textContent = "Choose Photo or Take Picture";
+  };
+
+  window.closeScanModal = (e) => {
+    if (e.target === document.getElementById("scan-overlay")) closeScanModalDirect();
+  };
+
+  window.closeScanModalDirect = () => {
+    document.getElementById("scan-overlay").classList.add("hidden");
+  };
+
+  window.handleScanFile = async (input) => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result.split(",")[1];
+      const mediaType = file.type;
+      document.getElementById("scan-img").src = e.target.result;
+      document.getElementById("scan-preview").style.display = "block";
+      document.getElementById("scan-status").style.display = "block";
+      document.getElementById("scan-pick-btn").textContent = "Choose Different Photo";
+      try {
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-6",
+            max_tokens: 1000,
+            messages: [{
+              role: "user",
+              content: [
+                { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+                { type: "text", text: "You are a medical record assistant. Look at this document and extract the key medical information. Return ONLY a JSON object with these fields (use null for anything not found): { \"recordType\": \"timeline|medication|treatment|lab|doctor\", \"title\": \"...\"  , \"date\": \"YYYY-MM-DD\", \"name\": \"...\"  , \"doctor\": \"...\"  , \"location\": \"...\"  , \"notes\": \"...\"  , \"dosage\": \"...\"  , \"frequency\": \"...\"  , \"testName\": \"...\"  , \"value\": \"...\"  , \"unit\": \"...\"  , \"specialty\": \"...\"  , \"hospital\": \"...\"  , \"phone\": \"...\" }. No explanation, just the JSON." }
+              ]
+            }]
+          })
+        });
+        const data = await response.json();
+        const text = data.content?.[0]?.text || "{}";
+        const clean = text.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(clean);
+        document.getElementById("scan-status").style.display = "none";
+        closeScanModalDirect();
+        const type = parsed.recordType || "timeline";
+        openModal(type);
+        setTimeout(() => {
+          const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+          set("f-title", parsed.title);
+          set("f-date", parsed.date);
+          set("f-doctor", parsed.doctor);
+          set("f-location", parsed.location);
+          set("f-notes", parsed.notes);
+          set("f-name", parsed.name || parsed.title);
+          set("f-dosage", parsed.dosage);
+          set("f-frequency", parsed.frequency);
+          set("f-testName", parsed.testName);
+          set("f-value", parsed.value);
+          set("f-unit", parsed.unit);
+          set("f-specialty", parsed.specialty);
+          set("f-hospital", parsed.hospital);
+          set("f-phone", parsed.phone);
+        }, 100);
+      } catch(err) {
+        document.getElementById("scan-status").textContent = "Could not read document. Please try again or add manually.";
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 </script>
 </body>
 </html>
-Done
