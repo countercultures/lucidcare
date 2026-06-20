@@ -6,5 +6,8 @@
   },
   "functions": {
     "source": "functions"
+  },
+  "emulators": {
+    "firestore": { "port": 8080 }
   }
 }
